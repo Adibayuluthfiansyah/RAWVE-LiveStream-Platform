@@ -43,3 +43,13 @@ func (r *chatPG) GetMessagesByStreamID(streamID string, limit int) ([]domain.Mes
 	}
 	return messages, nil
 }
+
+// get active stream
+func (r *chatPG) GetActiveStreams() ([]domain.Stream, error) {
+	var streams []domain.Stream
+	err := r.db.Where("is_live = ?", true).Order("updated_at DESC").Find(&streams).Error
+	if err != nil {
+		return nil, err
+	}
+	return streams, nil
+}

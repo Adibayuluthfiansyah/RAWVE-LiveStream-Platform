@@ -27,6 +27,7 @@ type ChatRepository interface {
 	UpdateStreamStatus(streamID string, isLive bool) error
 	SaveMessage(message *Message) error
 	GetMessagesByStreamID(streamID string, limit int) ([]Message, error)
+	GetActiveStreams() ([]Stream, error)
 }
 
 type ChatUseCase interface {
@@ -34,4 +35,5 @@ type ChatUseCase interface {
 	EndStream(streamID string) error
 	SendMessage(streamID string, userID string, content string) (*Message, error)
 	GetChatHistory(streamID string) ([]Message, error)
+	GetActiveStreams() ([]Stream, error)
 }

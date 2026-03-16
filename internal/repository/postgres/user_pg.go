@@ -30,3 +30,12 @@ func (r *userPG) GetByID(id string) (*domain.User, error) {
 	}
 	return &user, nil
 }
+
+// update profile
+func (r *userPG) UpdateProfile(user *domain.User) error {
+	return r.db.Model(&domain.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
+		"display_name": user.DisplayName,
+		"bio":          user.Bio,
+		"category":     user.Category,
+	}).Error
+}

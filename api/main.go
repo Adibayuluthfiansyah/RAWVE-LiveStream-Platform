@@ -38,6 +38,9 @@ func main() {
 		c.JSON(200, gin.H{"message": "Server RAWVE is running!"})
 	})
 
+	streamHandler := handlers.StreamHandler{ChatUsecase: chatUseCase}
+	api.GET("/streams/live", streamHandler.GetLiveStream)
+
 	handlers.NewUserHandler(api, userUseCase)
 
 	api.GET("/ws/chat/:stream_id", func(c *gin.Context) {
@@ -50,6 +53,11 @@ func main() {
 
 	// handler protected route
 	handlers.NewStreamHandler(protected, chatUseCase)
+
+	protected.PUT("/profile/setup", func(c *gin.Context) {
+		userHandler := handlers.UserHandler{UserUsecase: userUseCase}
+		userHandler.SetupProfile(c)
+	})
 
 	protected.GET("/dashboard", func(c *gin.Context) {
 		user_id, _ := c.Get("user_id")

@@ -41,3 +41,8 @@ func (u *chatUsecase) SendMessage(streamID string, userID string, content string
 func (u *chatUsecase) GetChatHistory(streamID string) ([]domain.Message, error) {
 	return u.chatRepo.GetMessagesByStreamID(streamID, 60)
 }
+
+// get active stream
+func (u *chatUsecase) GetActiveStreams() ([]domain.Stream, error) {
+	return u.chatRepo.GetActiveStreams()
+}

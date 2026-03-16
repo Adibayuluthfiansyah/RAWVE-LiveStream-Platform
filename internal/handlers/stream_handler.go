@@ -8,12 +8,12 @@ import (
 )
 
 type StreamHandler struct {
-	chatUsecase domain.ChatUseCase
+	ChatUsecase domain.ChatUseCase
 }
 
 func NewStreamHandler(r *gin.RouterGroup, cu domain.ChatUseCase) {
 	handler := &StreamHandler{
-		chatUsecase: cu,
+		ChatUsecase: cu,
 	}
 	streamGroup := r.Group("/streams")
 	{
@@ -36,6 +36,7 @@ func (h *StreamHandler) StartStream(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&payload); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Wrong format or title empty"})
+		return
 	}
 	stream := &domain.Stream{
 		ID:           userID.(string),
@@ -43,7 +44,7 @@ func (h *StreamHandler) StartStream(c *gin.Context) {
 		Category:     payload.Category,
 		ThumbnailURL: payload.ThumbnailURL,
 	}
-	if err := h.chatUsecase.StartStream(stream); err != nil {
+	if err := h.ChatUsecase.StartStream(stream); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to start stream"})
 		return
 	}
@@ -55,9 +56,21 @@ func (h *StreamHandler) StartStream(c *gin.Context) {
 // end stream handler
 func (h *StreamHandler) EndStream(c *gin.Context) {
 	userID, _ := c.Get("user_id")
-	if err := h.chatUsecase.EndStream(userID.(string)); err != nil {
+	if err := h.ChatUsecase.EndStream(userID.(string)); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to end stream"})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Stream ended"})
+}
+
+// get active stream
+func (h *StreamHandler) GetLiveStream(c *gin.Context) {
+	streams, err := h.ChatUsecase.GetActiveStreams()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch stream list"})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"message": "Success get list livestream",
+		"data": streams,
+	})
 }

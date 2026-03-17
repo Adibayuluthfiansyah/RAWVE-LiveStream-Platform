@@ -10,6 +10,7 @@ import (
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/handlers"
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/repository/postgres"
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/usecase"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,6 +19,14 @@ func main() {
 	config.ConnectDatabase()
 
 	router := gin.Default()
+
+	//cors
+	configCors := cors.DefaultConfig()
+	configCors.AllowAllOrigins = true
+	configCors.AllowCredentials = true
+	configCors.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"}
+	configCors.AllowHeaders = []string{"Origin", "Content-Type", "Accept", "Authorization"}
+	router.Use(cors.New(configCors))
 
 	// inject
 	userRepo := postgres.NewUserRepository(config.DB)
@@ -32,6 +41,9 @@ func main() {
 
 	// route
 	api := router.Group("/api")
+
+	// rate limiter
+	api.Use(middleware.RateLimitMiddleware())
 
 	// public route
 	api.GET("/ping", func(c *gin.Context) {

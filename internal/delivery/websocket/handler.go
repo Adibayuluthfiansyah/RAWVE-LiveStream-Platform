@@ -9,11 +9,21 @@ import (
 	gorillaWs "github.com/gorilla/websocket"
 )
 
+var allowedOrigins = map[string]bool{
+	"http://localhost:3000": true,
+	// "https://rawve.live":    true,   <-- this domain prodcution
+}
+
 var upgrader = gorillaWs.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		return true
+		origin := r.Header.Get("Origin")
+		if allowedOrigins[origin] {
+			return true
+		}
+		log.Println("Origin not allowed:", origin)
+		return false
 	},
 }
 

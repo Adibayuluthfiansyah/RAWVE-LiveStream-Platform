@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 
+	_ "github.com/Adibayuluthfiansyah/Go-LiveChat/docs"
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/config"
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/delivery/http/middleware"
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/delivery/websocket"
@@ -12,7 +13,29 @@ import (
 	"github.com/Adibayuluthfiansyah/Go-LiveChat/internal/usecase"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+// @title           RAWVE Livestream API
+// @version         1.0
+// @description     REST API untuk platform livestream RAWVE dengan fitur live chat dan stream management.
+// @termsOfService  http://swagger.io/terms/
+
+// @contact.name   RAWVE API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  support@rawve.com
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
 
 func main() {
 	config.LoadConfig()
@@ -46,6 +69,13 @@ func main() {
 	api.Use(middleware.RateLimitMiddleware())
 
 	// public route
+	// Ping godoc
+	// @Summary      Health check
+	// @Description  Checks if the server is running
+	// @Tags         system
+	// @Produce      json
+	// @Success      200  {object}  map[string]interface{}  "message"
+	// @Router       /ping [get]
 	api.GET("/ping", func(c *gin.Context) {
 		c.JSON(200, gin.H{"message": "Server RAWVE is running!"})
 	})
@@ -71,6 +101,15 @@ func main() {
 		userHandler.SetupProfile(c)
 	})
 
+	// Dashboard godoc
+	// @Summary      Creator dashboard
+	// @Description  Access to creator studio dashboard for authenticated users
+	// @Tags         users
+	// @Produce      json
+	// @Success      200  {object}  map[string]interface{}  "message, user_id, status"
+	// @Failure      401  {object}  map[string]interface{}  "error: Unauthorized"
+	// @Security     BearerAuth
+	// @Router       /dashboard [get]
 	protected.GET("/dashboard", func(c *gin.Context) {
 		user_id, _ := c.Get("user_id")
 		c.JSON(200, gin.H{
@@ -79,6 +118,9 @@ func main() {
 			"status":  "success",
 		})
 	})
+
+	// Swagger documentation route (public)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("PORT")
 	if port == "" {

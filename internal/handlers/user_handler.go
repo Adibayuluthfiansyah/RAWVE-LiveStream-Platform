@@ -26,6 +26,17 @@ func generateStreamKey() string {
 	return "sk_rawve_" + hex.EncodeToString(bytes)
 }
 
+// HandlerClerkWebhook godoc
+// @Summary      Clerk Webhook Handler
+// @Description  Receives user lifecycle events from Clerk authentication service
+// @Tags         webhooks
+// @Accept       json
+// @Produce      json
+// @Param        payload  body      object  true  "Clerk webhook payload"
+// @Success      200      {object}  map[string]interface{}  "message"
+// @Failure      400      {object}  map[string]interface{}  "Error"
+// @Failure      500      {object}  map[string]interface{}  "error: Failed to syncron user from auth"
+// @Router       /webhooks/clerk [post]
 func (h *UserHandler) HandlerClerkWebhook(c *gin.Context) {
 	var payload struct {
 		Data struct {
@@ -59,6 +70,19 @@ func (h *UserHandler) HandlerClerkWebhook(c *gin.Context) {
 }
 
 // update profile
+// SetupProfile godoc
+// @Summary      Setup user profile
+// @Description  Updates user profile with display name, bio, and category
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        request  body      object{display_name=string,bio=string,category=string}  true  "Profile details"
+// @Success      200      {object}  map[string]interface{}  "message"
+// @Failure      400      {object}  map[string]interface{}  "error: Wrong format or Display Name Empty"
+// @Failure      401      {object}  map[string]interface{}  "error: Unathorized Access"
+// @Failure      500      {object}  map[string]interface{}  "error: Failed to update profile"
+// @Security     BearerAuth
+// @Router       /profile/setup [put]
 func (h *UserHandler) SetupProfile(c *gin.Context) {
 	userID, exist := c.Get("user_id")
 	if !exist {

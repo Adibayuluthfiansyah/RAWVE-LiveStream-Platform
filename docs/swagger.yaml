@@ -1,0 +1,199 @@
+basePath: /api
+host: localhost:8080
+info:
+  contact:
+    email: support@rawve.com
+    name: RAWVE API Support
+    url: http://www.swagger.io/support
+  description: REST API untuk platform livestream RAWVE dengan fitur live chat dan
+    stream management.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: RAWVE Livestream API
+  version: "1.0"
+paths:
+  /profile/setup:
+    put:
+      consumes:
+      - application/json
+      description: Updates user profile with display name, bio, and category
+      parameters:
+      - description: Profile details
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            bio:
+              type: string
+            category:
+              type: string
+            display_name:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: Wrong format or Display Name Empty'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: Unathorized Access'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: Failed to update profile'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Setup user profile
+      tags:
+      - users
+  /streams/end:
+    post:
+      consumes:
+      - application/json
+      description: Stops the current livestream session for authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: Unauthorized'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: Failed to end stream'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: End a livestream
+      tags:
+      - streams
+  /streams/live:
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a list of all currently active livestreams
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message, data
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get all active livestreams
+      tags:
+      - streams
+  /streams/start:
+    post:
+      consumes:
+      - application/json
+      description: Creates and starts a new livestream session for authenticated user
+      parameters:
+      - description: Stream details
+        in: body
+        name: request
+        required: true
+        schema:
+          properties:
+            category:
+              type: string
+            thumbnail_url:
+              type: string
+            title:
+              type: string
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message, data
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: 'error: Wrong format or title empty'
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: 'error: user unathorized'
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: Failed to start stream'
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Start a livestream
+      tags:
+      - streams
+  /webhooks/clerk:
+    post:
+      consumes:
+      - application/json
+      description: Receives user lifecycle events from Clerk authentication service
+      parameters:
+      - description: Clerk webhook payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: message
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Error
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: 'error: Failed to syncron user from auth'
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Clerk Webhook Handler
+      tags:
+      - webhooks
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

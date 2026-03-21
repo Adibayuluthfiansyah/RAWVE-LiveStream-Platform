@@ -2,12 +2,22 @@ package middleware
 
 import (
 	"github.com/gin-gonic/gin"
+	// Uncomment these imports when enabling production auth:
+	// "net/http"
+	// "os"
+	// "strings"
+	// "github.com/clerk/clerk-sdk-go/v2"
+	// clerkjwt "github.com/clerk/clerk-sdk-go/v2/jwt"
 )
 
 func RequireAuth() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// DEVELOPMENT MODE: Hardcoded user_id
+		// TODO: Uncomment production auth before deploying
 		c.Set("user_id", "Adibayu")
 		c.Next()
+
+		// PRODUCTION AUTH (commented for development)
 		// authHeader := c.GetHeader("Authorization")
 		// if authHeader == "" {
 		// 	c.JSON(http.StatusUnauthorized, gin.H{"error:": " Access denied token not found"})
@@ -30,7 +40,7 @@ func RequireAuth() gin.HandlerFunc {
 		// 	c.Abort()
 		// 	return
 		// }
-
+		//
 		// c.Set("user_id", claims.Subject)
 		// c.Next()
 	}
